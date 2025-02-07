@@ -113,4 +113,13 @@ public class Comment implements Serializable {
 		return userComment;
 	}
 
+	public Comment(int id, String comment, Timestamp createdAt, Review review, User user) {
+		super();
+		this.id = id;
+		this.comment = comment;
+		this.createdAt = createdAt;
+		this.review = review;
+		this.user = user;
+	}
+
 }
