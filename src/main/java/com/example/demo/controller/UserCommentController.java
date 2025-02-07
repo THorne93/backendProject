@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,6 +16,8 @@ import com.example.demo.model.UserComment;
 import com.example.demo.repositories.CommentRepository;
 import com.example.demo.repositories.UserCommentRepository;
 import com.example.demo.repositories.UserRepository;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @CrossOrigin
 @RestController
@@ -45,29 +50,26 @@ public class UserCommentController {
 		return userCommentListDTO;
 	}
 
-//	@PostMapping(path = "/obtener1", consumes = MediaType.APPLICATION_JSON_VALUE)
-//	public DTO getUsuario(@RequestBody DTO soloid, HttpServletRequest request) {
-//		DTO dtoUsuaria = new DTO();
-//		User u = userRep.findById(Integer.parseInt(soloid.get("id").toString()));
-//		if (u != null) {
-//			dtoUsuaria.put("id", u.getId());
-//			dtoUsuaria.put("nombre", u.getNombre());
-//			dtoUsuaria.put("fecha_nac", u.getFechaNac().toString());
-//			if (u.getFechaElim() != null) {
-//				dtoUsuaria.put("fecha_elim", u.getFechaElim().toString());
-//			} else {
-//				dtoUsuaria.put("fecha_elim", new Date(0));
-//			}
-//			dtoUsuaria.put("username", u.getUsername());
-//
-//			if (u.getUsuarioTipo() != null) {
-//				dtoUsuaria.put("idDeRol", u.getUsuarioTipo().getRol());
-//			}
-//		} else {
-//			dtoUsuaria.put("result", "fail");
-//		}
-//		return dtoUsuaria;
-//	}
+	@PostMapping(path = "/getone", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public DTO getUsuario(@RequestBody DTO soloid, HttpServletRequest request) {
+		DTO ucDTO = new DTO();
+		UserComment us = userCommentRep.findById(Integer.parseInt(soloid.get("id").toString()));
+		if (us != null) {
+			ucDTO.put("result", "success");
+			ucDTO.put("id", us.getId());
+			ucDTO.put("user", us.getUser().getName());
+			ucDTO.put("comment", us.getComment().getComment());
+			ucDTO.put("comment_by", us.getComment().getUser().getName());
+
+			ucDTO.put("created_at", us.getCreatedAt());
+			ucDTO.put("edited_at", us.getEditedAt());
+			ucDTO.put("liked", us.getLiked());
+			ucDTO.put("saved", us.getSaved());
+		} else {
+			ucDTO.put("result", "fail");
+		}
+		return ucDTO;
+	}
 //
 //	@DeleteMapping(path = "/borrar1", consumes = MediaType.APPLICATION_JSON_VALUE)
 //	public DTO deleteUsuario(@RequestBody DTO soloid, HttpServletRequest request) {

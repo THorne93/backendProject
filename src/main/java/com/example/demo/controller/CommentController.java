@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.controller.ReviewController.ReviewData;
 import com.example.demo.model.Comment;
 import com.example.demo.model.User;
 import com.example.demo.model.Review;
@@ -87,13 +89,36 @@ public class CommentController {
 	    User user = userRep.findById(c.id_user);  // Retrieve the user by ID
 
 	    if (review != null && user != null) {
-	        // Create a new Timestamp for the current time
 	        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-
-	        // Save the new comment
 	        commentRep.save(new Comment(c.id, c.comment, timestamp, review, user));
 	    } 
 	}
+	
+	@PutMapping(path = "/edit", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public DTO editComment(@RequestBody CommentData c, HttpServletRequest request) {
+	    DTO response = new DTO();
+
+	    Comment comment = commentRep.findById(c.id);
+	    
+	    Review review = reviewRep.findById(c.id_review);
+	    User user = userRep.findById(c.id_user);
+
+	    if (comment != null && review != null && user != null) {
+	        comment.setComment(c.comment);  
+	        comment.setReview(review);    
+	        comment.setUser(user);          
+	        comment.setCreatedAt(new Timestamp(System.currentTimeMillis())); 
+
+	        commentRep.save(comment);
+	        
+	        response.put("result", "success");
+	    } else {
+	        response.put("result", "fail");
+	    }
+
+	    return response;
+	}
+
 
 	static class CommentData {
 		int id;
