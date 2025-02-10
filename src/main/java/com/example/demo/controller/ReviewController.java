@@ -51,7 +51,7 @@ public class ReviewController {
 	}
 
 	@PostMapping(path = "/getone", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public DTO getReview(@RequestBody DTO soloid, HttpServletRequest request) {
+	public DTO getReview(@RequestBody DTO soloid) {
 		DTO reviewDto = new DTO();
 		Review r = reviewRep.findById(Integer.parseInt(soloid.get("id").toString()));
 		if (r != null) {
