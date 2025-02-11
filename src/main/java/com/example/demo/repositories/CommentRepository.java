@@ -17,6 +17,7 @@ public interface CommentRepository extends JpaRepository<Comment, Serializable> 
 		@Bean
 		public abstract List<Comment> findAll();
 		public abstract Comment findById(int id);
+		public abstract List<Comment> findAllByReview_Id(int id);
 
 
 		@Override

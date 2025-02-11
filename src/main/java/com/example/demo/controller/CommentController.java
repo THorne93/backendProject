@@ -39,18 +39,35 @@ public class CommentController {
 
 	@GetMapping("/all")
 	public List<DTO> getComments() {
-		List<DTO> userListDTO = new ArrayList<>();
+		List<DTO> commentListDTO = new ArrayList<>();
 		List<Comment> comments = commentRep.findAll();
 		for (Comment c : comments) {
 			DTO commentDto = new DTO();
 			commentDto.put("id", c.getId());
 			commentDto.put("user", c.getUser().getName());
 			commentDto.put("review", c.getReview().getName());
-			commentDto.put("created_at", c.getCreatedAt());
+			commentDto.put("created_at", c.getCreatedAt().toString());
 			commentDto.put("comment", c.getComment());
-			userListDTO.add(commentDto);
+			commentListDTO.add(commentDto);
 		}
-		return userListDTO;
+		return commentListDTO;
+	}
+
+	@PostMapping(path = "/getallbyreview", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public List<DTO> getAllByReviewt(@RequestBody DTO soloid, HttpServletRequest request) {
+		List<DTO> commentListDTO = new ArrayList<>();
+		List<Comment> comments = commentRep.findAllByReview_Id(Integer.parseInt(soloid.get("id").toString()));
+		
+			for (Comment c : comments) {
+				DTO commentDto = new DTO();
+				commentDto.put("id", c.getId());
+				commentDto.put("user", c.getUser().getName());
+				commentDto.put("review", c.getReview().getName());
+				commentDto.put("created_at", c.getCreatedAt().toString());
+				commentDto.put("comment", c.getComment());
+				commentListDTO.add(commentDto);
+			}
+			return commentListDTO;
 	}
 
 	@PostMapping(path = "/getone", consumes = MediaType.APPLICATION_JSON_VALUE)

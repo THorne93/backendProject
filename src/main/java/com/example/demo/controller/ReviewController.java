@@ -50,6 +50,8 @@ public class ReviewController {
 		return reviewListDTO;
 	}
 
+
+
 	@PostMapping(path = "/getone", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public DTO getReview(@RequestBody DTO soloid) {
 		DTO reviewDto = new DTO();
