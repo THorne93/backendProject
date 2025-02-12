@@ -31,9 +31,28 @@ public class UserCommentController {
 	CommentRepository commentRep;
 
 	@GetMapping("/all")
-	public List<DTO> getComments() {
+	public List<DTO> getUserCommentsInteractions() {
 		List<DTO> userCommentListDTO = new ArrayList<>();
 		List<UserComment> userComments = userCommentRep.findAll();
+		for (UserComment us : userComments) {
+			DTO ucDTO = new DTO();
+			ucDTO.put("id", us.getId());
+			ucDTO.put("user", us.getUser().getName());
+			ucDTO.put("comment", us.getComment().getComment());
+			ucDTO.put("comment_by", us.getComment().getUser().getName());
+
+			ucDTO.put("created_at", us.getCreatedAt());
+			ucDTO.put("edited_at", us.getEditedAt());
+			ucDTO.put("liked", us.getLiked());
+			ucDTO.put("saved", us.getSaved());
+			userCommentListDTO.add(ucDTO);
+		}
+		return userCommentListDTO;
+	}
+	@PostMapping(path = "/getallbycomment", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public List<DTO> getUserCommentsInteractionsByComment(@RequestBody DTO soloid, HttpServletRequest request) {
+		List<DTO> userCommentListDTO = new ArrayList<>();
+		List<UserComment> userComments = userCommentRep.findAllByComment_Id(Integer.parseInt(soloid.get("commentId").toString()));
 		for (UserComment us : userComments) {
 			DTO ucDTO = new DTO();
 			ucDTO.put("id", us.getId());

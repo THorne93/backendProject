@@ -147,7 +147,10 @@ public class UserController {
 
 	            // Create the JWT cookie
 	            Cookie c = new Cookie("jwt", AutenticadorJWT.codifyJWT(authenticatedUser));
-	            c.setMaxAge(-1);  // Set cookie expiration
+				c.setHttpOnly(true);  
+            	c.setSecure(false);  
+            	c.setPath("/");   
+	            c.setMaxAge(-1);  
 	            response.addCookie(c);
 	        }
 	    }
@@ -175,8 +178,8 @@ public class UserController {
 			userDTO.put("name", u.getName());
 			userDTO.put("surnames", u.getSurnames());
 			userDTO.put("username", u.getUsername());
-			userDTO.put("pass", u.getPass());
 			userDTO.put("email", u.getEmail());
+			userDTO.put("role",u.getRole());
 			userDTO.put("date_created", u.getDateCreated().toString());
 		} else {
 			userDTO.put("result", "fail");
