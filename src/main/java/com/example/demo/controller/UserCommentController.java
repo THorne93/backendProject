@@ -1,4 +1,5 @@
 package com.example.demo.controller;
+import java.sql.Timestamp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,10 +9,13 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.model.User;
+import com.example.demo.model.Comment;
 import com.example.demo.model.UserComment;
 import com.example.demo.repositories.CommentRepository;
 import com.example.demo.repositories.UserCommentRepository;
@@ -59,7 +63,7 @@ public class UserCommentController {
 			ucDTO.put("user", us.getUser().getName());
 			ucDTO.put("comment", us.getComment().getComment());
 			ucDTO.put("comment_by", us.getComment().getUser().getName());
-
+			ucDTO.put("id_user", us.getUser().getId());
 			ucDTO.put("created_at", us.getCreatedAt());
 			ucDTO.put("edited_at", us.getEditedAt());
 			ucDTO.put("liked", us.getLiked());
@@ -67,6 +71,18 @@ public class UserCommentController {
 			userCommentListDTO.add(ucDTO);
 		}
 		return userCommentListDTO;
+	}
+
+	@PostMapping(path = "/getbycommentanduser", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public DTO getUserCommentsInteractionsByCommentAndUser(@RequestBody DTO soloid, HttpServletRequest request) {
+		DTO ucDTO = new DTO();
+		UserComment userComment = userCommentRep.findByComment_IdAndUser_Id(Integer.parseInt(soloid.get("commentId").toString()),Integer.parseInt(soloid.get("userId").toString()));
+		if (userComment != null) {
+			ucDTO.put("result", "true");
+		} else {
+			ucDTO.put("result", "false");
+		}
+		return ucDTO;
 	}
 
 	@PostMapping(path = "/getone", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -103,103 +119,72 @@ public class UserCommentController {
 //		return dtoUsuaria;
 //	}
 //
-//	@PostMapping(path = "/insertar", consumes = MediaType.APPLICATION_JSON_VALUE)
-//	public void addUsuario(@RequestBody DatosAltaUsuario u, HttpServletRequest request) {
-//
-//		userRep.save(new Usuaria(u.id, u.fechaNac, null, DatatypeConverter.parseBase64Binary(u.img), u.nombre, u.pass,
-//				u.username, usuTipo.findById(u.rol)));
-//		// si la img la ponemos como byte.. tenemos que poner
-//		// Datatypeconverter.parseBase64Binary(u.img)
-//
-//	}
-//
-//	@PostMapping(path = "/autentica", consumes = MediaType.APPLICATION_JSON_VALUE)
-//	public DTO autenticaUsuario(@RequestBody DatosAutenticaUsuario datos, HttpServletRequest request,
-//			HttpServletResponse response) {
-//		DTO dto = new DTO();
-//		dto.put("result", "fail");
-//
-//		User usuarioAutenticado = userRep.findByUsernameAndPass(datos.username, datos.pass);
-//		if (usuarioAutenticado != null) {
-//			dto.put("result", "ok");
-//			dto.put("jwt", AutenticadorJWT.codificaJWT(usuarioAutenticado));
-//			Cookie cook = new Cookie("jwt", AutenticadorJWT.codificaJWT(usuarioAutenticado));
-//			cook.setMaxAge(-1);
-//			response.addCookie(cook);
-//		}
-//
-//		return dto;
-//	}
-//
-//	@GetMapping(path = "/quieneres")
-//	public DTO getAutenticado(HttpServletRequest request) {
-//
-//		DTO dtoUsuaria = new DTO();
-//		dtoUsuaria.put("result", "fail");
-//		Cookie[] c = request.getCookies();
-//		int idUsuarioAutenticado = -1;
-//
-//		for (Cookie cookie : c) {
-//			if (cookie.getName().equals("jwt")) {
-//				idUsuarioAutenticado = AutenticadorJWT.getIdUsuarioDesdeJWT(cookie.getValue());
-//			}
-//		}
-//		User u = userRep.findById(idUsuarioAutenticado);
-//		if (u != null) {
-//			dtoUsuaria.put("result", "ok");
-//			dtoUsuaria.put("id", u.getId());
-//			dtoUsuaria.put("nombre", u.getNombre());
-//			dtoUsuaria.put("fecha_nac", u.getFechaNac().toString());
-//			if (u.getFechaElim() != null) {
-//				dtoUsuaria.put("fecha_elim", u.getFechaElim().toString());
-//			} else {
-//				dtoUsuaria.put("fecha_elim", new Date(0));
-//			}
-//			dtoUsuaria.put("username", u.getUsername());
-//
-//			if (u.getUsuarioTipo() != null) {
-//				dtoUsuaria.put("idDeRol", u.getUsuarioTipo().getRol());
-//			}
-//		} else {
-//			dtoUsuaria.put("result", "fail");
-//		}
-//
-//		return dtoUsuaria;
-//	}
-//
-//	static class DatosAutenticaUsuario {
-//		String pass;
-//		String username;
-//
-//		public DatosAutenticaUsuario(String pass, String username) {
-//			super();
-//			this.pass = pass;
-//			this.username = username;
-//		}
-//	}
-//
-//	static class DatosAltaUsuario {
-//		int id;
-//		Date fechaNac;
-//		Date fechaElim;
-//		String img;
-//		// byte[] img;
-//		String nombre;
-//		String pass;
-//		String username;
-//		int rol;
-//
-//		public DatosAltaUsuario(int id, Date fechaNac, Date fechaElim, String img, String nombre, String pass,
-//				String username, int rol) {
-//			super();
-//			this.id = id;
-//			this.fechaNac = fechaNac;
-//			this.fechaElim = fechaElim;
-//			this.img = img;
-//			this.nombre = nombre;
-//			this.pass = pass;
-//			this.username = username;
-//			this.rol = rol;
-//		}
-//	}
+	@PostMapping(path = "/newlike", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public void addLikeNewInteraction(@RequestBody DTO jsonInfo, HttpServletRequest request) {
+
+		User user = userRep.findById(Integer.parseInt(jsonInfo.get("id_user").toString()));
+		Comment comment = commentRep.findById(Integer.parseInt(jsonInfo.get("id_comment").toString()));
+
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		UserComment userComment = new UserComment();
+		userComment.setUser(user);
+		userComment.setComment(comment);
+		userComment.setLiked(true);
+		userComment.setSaved(false);
+		userComment.setCreatedAt(timestamp);
+		userComment.setEditedAt(timestamp);
+		
+		userCommentRep.save(userComment);
+		System.out.println("Like saved successfully for user: " + user.getId() + " on comment: " + comment.getId());
+	}
+
+	@PostMapping(path = "/newsave", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public void addSaveNewInteraction(@RequestBody DTO jsonInfo, HttpServletRequest request) {
+		User user = userRep.findById(Integer.parseInt(jsonInfo.get("id_user").toString()));
+		Comment comment = commentRep.findById(Integer.parseInt(jsonInfo.get("id_comment").toString()));
+
+
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		UserComment userComment = new UserComment();
+		userComment.setUser(user);
+		userComment.setComment(comment);
+		userComment.setLiked(false);
+		userComment.setSaved(true);
+		userComment.setCreatedAt(timestamp);
+		userComment.setEditedAt(timestamp);
+		
+		userCommentRep.save(userComment);
+		System.out.println("Like saved successfully for user: " + user.getId() + " on comment: " + comment.getId());
+	}
+
+	@PutMapping(path = "/changeinteraction", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public DTO changeInteraction(@RequestBody DTO soloid, HttpServletRequest request) {
+		DTO ucDTO = new DTO();
+		String change = soloid.get("change").toString();  // Ensure it's a string
+	
+		// Find the existing interaction
+		UserComment userComment = userCommentRep.findByComment_IdAndUser_Id(
+			Integer.parseInt(soloid.get("commentId").toString()),
+			Integer.parseInt(soloid.get("userId").toString())
+		);
+	
+		if (userComment != null) {
+			if ("liked".equals(change)) { // Proper string comparison
+				userComment.setLiked(!userComment.getLiked()); // Toggle boolean
+			} else if ("saved".equals(change)) {
+				userComment.setSaved(!userComment.getSaved()); // Toggle boolean
+			}
+	
+			// Save changes to the database
+			userCommentRep.save(userComment);
+	
+			// Indicate success
+			ucDTO.put("result", "true");
+		} else {
+			ucDTO.put("result", "false");
+		}
+	
+		return ucDTO;
+	}
+	
 }

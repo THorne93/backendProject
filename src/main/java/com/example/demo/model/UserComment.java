@@ -12,6 +12,8 @@ import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 
 
 /**
@@ -33,6 +35,7 @@ public class UserComment implements Serializable {
 	private Date editedAt;
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
 	private boolean liked;

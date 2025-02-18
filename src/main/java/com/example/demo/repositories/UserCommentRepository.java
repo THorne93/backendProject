@@ -18,6 +18,7 @@ public interface UserCommentRepository extends JpaRepository<UserComment, Serial
 		public abstract List<UserComment> findAll();
 		public abstract List<UserComment> findAllByComment_Id(int commentid);
 		public abstract UserComment findById(int id);
+		public abstract UserComment findByComment_IdAndUser_Id(Integer commentId, Integer userId);
 
 
 		@Override

@@ -3,6 +3,8 @@ package com.example.demo.model;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,6 +28,7 @@ public class Comment implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
 	@Lob
@@ -113,9 +116,8 @@ public class Comment implements Serializable {
 		return userComment;
 	}
 
-	public Comment(int id, String comment, Timestamp createdAt, Review review, User user) {
-		super();
-		this.id = id;
+
+	public Comment(String comment, Timestamp createdAt, Review review, User user) {
 		this.comment = comment;
 		this.createdAt = createdAt;
 		this.review = review;

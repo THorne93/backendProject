@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.demo.controller.ReviewController.ReviewData;
 import com.example.demo.model.Comment;
@@ -56,7 +57,7 @@ public class CommentController {
 	@PostMapping(path = "/getallbyreview", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public List<DTO> getAllByReviewt(@RequestBody DTO soloid, HttpServletRequest request) {
 		List<DTO> commentListDTO = new ArrayList<>();
-		List<Comment> comments = commentRep.findAllByReview_Id(Integer.parseInt(soloid.get("id").toString()));
+		List<Comment> comments = commentRep.findAllByReview_IdOrderByCreatedAtDesc(Integer.parseInt(soloid.get("id").toString()));
 		
 			for (Comment c : comments) {
 				DTO commentDto = new DTO();
@@ -100,14 +101,16 @@ public class CommentController {
 		return commentDTO;
 	}
 
-	@PostMapping(path = "/new", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public void addComment(@RequestBody CommentData c, HttpServletRequest request) {
-		Review review = reviewRep.findById(c.id_review);  // Retrieve the review by ID
-	    User user = userRep.findById(c.id_user);  // Retrieve the user by ID
+	@PostMapping(path = "/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public void addComment(@RequestParam("comment") String comment,
+						   @RequestParam("reviewId") int reviewId,
+						   @RequestParam("userId") int userId) {
+		Review review = reviewRep.findById(reviewId);  // Retrieve the review by ID
+	    User user = userRep.findById(userId);  // Retrieve the user by ID
 
 	    if (review != null && user != null) {
 	        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-	        commentRep.save(new Comment(c.id, c.comment, timestamp, review, user));
+	        commentRep.save(new Comment(comment, timestamp, review, user));
 	    } 
 	}
 	
