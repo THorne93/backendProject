@@ -66,14 +66,7 @@ public class UserController {
 	        user.setName(u.name);
 	        user.setSurnames(u.surnames);
 	        user.setEmail(u.email);
-	        user.setUsername(u.username);
-	        
-	        if (u.pass != null && !u.pass.isEmpty()) {
-	            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-	            String hashedPassword = encoder.encode(u.pass);
-	            user.setPass(hashedPassword);
-	        }
-
+			user.setRole(u.role);
 	        userRep.save(user);
 	        dto.put("result", "ok");
 	    } else {
@@ -96,6 +89,7 @@ public class UserController {
 			userDTO.put("username", u.getUsername());
 			userDTO.put("pass", u.getPass());
 			userDTO.put("email", u.getEmail());
+			userDTO.put("role", u.getRole());
 			userDTO.put("date_created", u.getDateCreated().toString());
 		} else {
 			userDTO.put("result", "fail");

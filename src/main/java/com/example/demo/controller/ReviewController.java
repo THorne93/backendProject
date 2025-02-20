@@ -20,6 +20,7 @@ import com.example.demo.controller.UserController.UserRegisterData;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 import com.example.demo.model.Review;
@@ -77,23 +78,43 @@ public class ReviewController {
 		return reviewDto;
 	}
 
-	@PutMapping(path = "/edit", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public DTO editReview(@RequestBody ReviewData u, HttpServletRequest request) {
+	@PutMapping(path = "/edit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public DTO editReview(@RequestPart("reviewData") ReviewData r, @RequestPart(value = "image", required = false) MultipartFile image) {
 		DTO dto = new DTO();
 
-		// Find the user by ID
-		Review r = reviewRep.findById(u.id);
+		Review rN = reviewRep.findById(r.id);
 
-		if (r != null) {
-			r.setName(u.name);
-			r.setAddress(u.address);
-			r.setImg(u.img);
-			r.setRating(u.rating);
-			r.setReview(u.review);
-			r.setTitle(u.title);
+		if (rN != null) {
+			String uploadDir = "uploads/reviews/";
 
-			reviewRep.save(r);
+			try {
+			// Delete the previous image if it exists
+			if (image != null){
+			if (rN.getImg() != null && !rN.getImg().isEmpty()) {
+				Path oldImagePath = Paths.get(uploadDir, rN.getImg());
+				Files.deleteIfExists(oldImagePath);
+			}
+	
+			String timestamp = String.valueOf(System.currentTimeMillis());
+			String fileName = timestamp + "_" + image.getOriginalFilename();
+			Files.createDirectories(Paths.get(uploadDir));
+			Files.write(Paths.get(uploadDir,fileName), image.getBytes());
+			rN.setImg("/uploads/reviews/"+fileName);
+		}
+			rN.setName(r.name);
+			rN.setAddress(r.address);
+
+			rN.setRating(r.rating);
+			rN.setReview(r.review);
+			rN.setTitle(r.title);
+
+			reviewRep.save(rN);
 			dto.put("result", "ok");
+
+		} catch (IOException e) {
+            e.printStackTrace(); // Log the error
+            dto.put("result", "error");
+		}
 		} else {
 			dto.put("result", "fail");
 		}
@@ -101,19 +122,6 @@ public class ReviewController {
 		return dto;
 	}
 
-//
-	@DeleteMapping(path = "/delete", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public DTO deleteReview(@RequestBody DTO soloid, HttpServletRequest request) {
-		DTO reviewDto = new DTO();
-		Review r = reviewRep.findById(Integer.parseInt(soloid.get("id").toString()));
-		if (r != null) {
-			reviewRep.delete(r);
-			reviewDto.put("borrado", "ok");
-		} else {
-			reviewDto.put("borrado", "fail");
-		}
-		return reviewDto;
-	}
 
 	@PostMapping(path = "/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public DTO addReview(@RequestPart("reviewData") ReviewData r, @RequestPart("image") MultipartFile image) {
@@ -136,6 +144,20 @@ public class ReviewController {
 		}
 		return reviewDto;
 
+	}
+
+	
+	@DeleteMapping(path = "/delete", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public DTO deleteReview(@RequestBody DTO soloid, HttpServletRequest request) {
+		DTO reviewDto = new DTO();
+		Review r = reviewRep.findById(Integer.parseInt(soloid.get("id").toString()));
+		if (r != null) {
+			reviewRep.delete(r);
+			reviewDto.put("delete", "ok");
+		} else {
+			reviewDto.put("delete", "fail");
+		}
+		return reviewDto;
 	}
 
 //

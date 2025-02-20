@@ -62,7 +62,9 @@ public class CommentController {
 			for (Comment c : comments) {
 				DTO commentDto = new DTO();
 				commentDto.put("id", c.getId());
+				if (c.getUser() != null){
 				commentDto.put("user", c.getUser().getName());
+			} else commentDto.put("user", "Deleted User");
 				commentDto.put("review", c.getReview().getName());
 				commentDto.put("created_at", c.getCreatedAt().toString());
 				commentDto.put("comment", c.getComment());

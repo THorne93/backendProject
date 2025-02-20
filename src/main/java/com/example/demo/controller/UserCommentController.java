@@ -105,20 +105,18 @@ public class UserCommentController {
 		}
 		return ucDTO;
 	}
-//
-//	@DeleteMapping(path = "/borrar1", consumes = MediaType.APPLICATION_JSON_VALUE)
-//	public DTO deleteUsuario(@RequestBody DTO soloid, HttpServletRequest request) {
-//		DTO dtoUsuaria = new DTO();
-//		User u = userRep.findById(Integer.parseInt(soloid.get("id").toString()));
-//		if (u != null) {
-//			userRep.delete(u);
-//			dtoUsuaria.put("borrado", "ok");
-//		} else {
-//			dtoUsuaria.put("borrado", "fail");
-//		}
-//		return dtoUsuaria;
-//	}
-//
+	@DeleteMapping(path = "/delete", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public DTO deleteComment(@RequestBody DTO soloid, HttpServletRequest request) {
+		DTO ucDTO = new DTO();
+		UserComment usC = userCommentRep.findById(Integer.parseInt(soloid.get("id").toString()));		
+		if (usC != null) {
+			userCommentRep.delete(usC);
+			ucDTO.put("delete", "ok");
+		} else {
+			ucDTO.put("delete", "fail");
+		}
+		return ucDTO;
+	}
 	@PostMapping(path = "/newlike", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public void addLikeNewInteraction(@RequestBody DTO jsonInfo, HttpServletRequest request) {
 
@@ -174,7 +172,8 @@ public class UserCommentController {
 			} else if ("saved".equals(change)) {
 				userComment.setSaved(!userComment.getSaved()); // Toggle boolean
 			}
-	
+			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+			userComment.setEditedAt(timestamp);
 			// Save changes to the database
 			userCommentRep.save(userComment);
 	
